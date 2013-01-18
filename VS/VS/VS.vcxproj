@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4A1D0E0D-B3F1-4CCF-9745-A7AF87E536C9}</ProjectGuid>
+    <RootNamespace>VS</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\main.c" />
+    <ClCompile Include="..\..\source\startup_efm32gg.c" />
+    <ClCompile Include="..\..\source\system_efm32gg.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\core_cm3.h" />
+    <ClInclude Include="..\..\include\core_cmFunc.h" />
+    <ClInclude Include="..\..\include\core_cmInstr.h" />
+    <ClInclude Include="..\..\include\efm32.h" />
+    <ClInclude Include="..\..\include\efm32gg990f1024.h" />
+    <ClInclude Include="..\..\include\efm32gg_acmp.h" />
+    <ClInclude Include="..\..\include\efm32gg_adc.h" />
+    <ClInclude Include="..\..\include\efm32gg_aes.h" />
+    <ClInclude Include="..\..\include\efm32gg_af_pins.h" />
+    <ClInclude Include="..\..\include\efm32gg_af_ports.h" />
+    <ClInclude Include="..\..\include\efm32gg_burtc.h" />
+    <ClInclude Include="..\..\include\efm32gg_burtc_ret.h" />
+    <ClInclude Include="..\..\include\efm32gg_calibrate.h" />
+    <ClInclude Include="..\..\include\efm32gg_cmu.h" />
+    <ClInclude Include="..\..\include\efm32gg_dac.h" />
+    <ClInclude Include="..\..\include\efm32gg_devinfo.h" />
+    <ClInclude Include="..\..\include\efm32gg_dma.h" />
+    <ClInclude Include="..\..\include\efm32gg_dmactrl.h" />
+    <ClInclude Include="..\..\include\efm32gg_dmareq.h" />
+    <ClInclude Include="..\..\include\efm32gg_dma_ch.h" />
+    <ClInclude Include="..\..\include\efm32gg_dma_descriptor.h" />
+    <ClInclude Include="..\..\include\efm32gg_ebi.h" />
+    <ClInclude Include="..\..\include\efm32gg_emu.h" />
+    <ClInclude Include="..\..\include\efm32gg_etm.h" />
+    <ClInclude Include="..\..\include\efm32gg_gpio.h" />
+    <ClInclude Include="..\..\include\efm32gg_gpio_p.h" />
+    <ClInclude Include="..\..\include\efm32gg_i2c.h" />
+    <ClInclude Include="..\..\include\efm32gg_lcd.h" />
+    <ClInclude Include="..\..\include\efm32gg_lesense.h" />
+    <ClInclude Include="..\..\include\efm32gg_lesense_buf.h" />
+    <ClInclude Include="..\..\include\efm32gg_lesense_ch.h" />
+    <ClInclude Include="..\..\include\efm32gg_lesense_st.h" />
+    <ClInclude Include="..\..\include\efm32gg_letimer.h" />
+    <ClInclude Include="..\..\include\efm32gg_leuart.h" />
+    <ClInclude Include="..\..\include\efm32gg_msc.h" />
+    <ClInclude Include="..\..\include\efm32gg_pcnt.h" />
+    <ClInclude Include="..\..\include\efm32gg_prs.h" />
+    <ClInclude Include="..\..\include\efm32gg_prs_ch.h" />
+    <ClInclude Include="..\..\include\efm32gg_prs_signals.h" />
+    <ClInclude Include="..\..\include\efm32gg_rmu.h" />
+    <ClInclude Include="..\..\include\efm32gg_romtable.h" />
+    <ClInclude Include="..\..\include\efm32gg_rtc.h" />
+    <ClInclude Include="..\..\include\efm32gg_timer.h" />
+    <ClInclude Include="..\..\include\efm32gg_timer_cc.h" />
+    <ClInclude Include="..\..\include\efm32gg_uart.h" />
+    <ClInclude Include="..\..\include\efm32gg_usart.h" />
+    <ClInclude Include="..\..\include\efm32gg_usb.h" />
+    <ClInclude Include="..\..\include\efm32gg_usb_diep.h" />
+    <ClInclude Include="..\..\include\efm32gg_usb_doep.h" />
+    <ClInclude Include="..\..\include\efm32gg_usb_hc.h" />
+    <ClInclude Include="..\..\include\efm32gg_vcmp.h" />
+    <ClInclude Include="..\..\include\efm32gg_wdog.h" />
+    <ClInclude Include="..\..\include\em_device.h" />
+    <ClInclude Include="..\..\include\system_efm32gg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\source\startup_efm32gg.s" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
