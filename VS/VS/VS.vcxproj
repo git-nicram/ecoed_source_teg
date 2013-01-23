@@ -62,11 +62,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\main.c" />
+    <ClCompile Include="..\..\ecoitouch.c" />
     <ClCompile Include="..\..\source\startup_efm32gg.c" />
     <ClCompile Include="..\..\source\system_efm32gg.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ecoitouch.h" />
     <ClInclude Include="..\..\include\core_cm3.h" />
     <ClInclude Include="..\..\include\core_cmFunc.h" />
     <ClInclude Include="..\..\include\core_cmInstr.h" />

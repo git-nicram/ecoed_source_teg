@@ -34,13 +34,13 @@
 *    RTC, external interrupt (GPIO).
 * 
 * #5 Reduce power consumption:
-*			- use [X]HFRCO(1-7 MHz) or [V]LFRCO(32kHz) depends on functionality
-*			- put as much as possible code to RAM
-*			- turn off all unused peripherals and use LE if needed
-*			- properly configure/disable GPIO for the best energy consumption
+*           - use [X]HFRCO(1-7 MHz) or [V]LFRCO(32kHz) depends on functionality
+*           - put as much as possible code to RAM
+*           - turn off all unused peripherals and use LE if needed
+*           - properly configure/disable GPIO for the best energy consumption
 *
-*			- VCMP (required) - analyze TEG and storage voltage 
-*			- LEUART (required) - data logging
+*           - VCMP (required) - analyze TEG and storage voltage 
+*           - LEUART (required) - data logging
 *           - SysTick  (optional)
-*			- WatchDog (optional)
+*           - WatchDog (optional)
 *           
