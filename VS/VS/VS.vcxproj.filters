@@ -26,6 +26,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\source\startup_efm32gg.s">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\include\core_cm3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -188,13 +193,5 @@
     <ClInclude Include="..\..\include\system_efm32gg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ecoitouch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\source\startup_efm32gg.s">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

@@ -67,7 +67,9 @@
     <ClCompile Include="..\..\source\system_efm32gg.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\ecoitouch.h" />
+    <None Include="..\..\source\startup_efm32gg.s" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\include\core_cm3.h" />
     <ClInclude Include="..\..\include\core_cmFunc.h" />
     <ClInclude Include="..\..\include\core_cmInstr.h" />
@@ -122,9 +124,6 @@
     <ClInclude Include="..\..\include\efm32gg_wdog.h" />
     <ClInclude Include="..\..\include\em_device.h" />
     <ClInclude Include="..\..\include\system_efm32gg.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\source\startup_efm32gg.s" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
