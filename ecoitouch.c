@@ -15,7 +15,9 @@
  * * *
  * 0.0.7  xx.xx.2013    nicraM    
  * 0.0.6  xx.xx.2013    nicraM    LEUART configuration and functionality
- * 0.0.5  xx.xx.2013    nicraM    RTC configuration
+ * 0.0.5  xx.xx.2013    nicraM    RTC configuration - SysTick is not available
+                                  in deep sleep So will be commented - later
+                                  removed.
  * 0.0.4  28.01.2013    nicraM    GPIO configuration and handling 
  * 0.0.3  23.01.2013    nicraM    SysTick and VCMP configuration
  * 0.0.2  23.01.2013    nicraM    Deep sleep mode configuration. Event and
@@ -37,7 +39,7 @@
 /* DEFINITIONS */
 /***************/
 
-#define EN_DIS_ALL_INTERRUPTS   0xFFFFFFFF
+#define EN_DIS_ALL_INTERRUPTS   0xFFFFFFFFUL
 #define PAGE0                   0UL
 #define PAGE1                   1UL
 
@@ -55,9 +57,42 @@
 #define THRESHOLD_VOLTAGE(x)    (uint32_t)((x * VOLTAGE_MAGIC_1_CONST) \
 	                                          - VOLTAGE_MAGIC_2_CONST)
 
+#define GPIO_MASK_PIN(x)        (1 << x)   
+
+
 /************************/
 /* STRUCTURES AND ENUMS */
 /************************/
+
+enum GPIO_PORTS
+{
+    GPIO_PORT_A = 0,
+    GPIO_PORT_B,
+    GPIO_PORT_C,
+    GPIO_PORT_D,
+    GPIO_PORT_E,
+    GPIO_PORT_F
+};
+
+enum GPIO_PINS
+{
+    GPIO_PIN_0 = 0,
+    GPIO_PIN_1,
+    GPIO_PIN_2,
+    GPIO_PIN_3,
+    GPIO_PIN_4,
+    GPIO_PIN_5,
+    GPIO_PIN_6,
+    GPIO_PIN_7,
+    GPIO_PIN_8,
+    GPIO_PIN_9,
+    GPIO_PIN_10,
+    GPIO_PIN_11,
+    GPIO_PIN_12,
+    GPIO_PIN_13,
+    GPIO_PIN_14,
+    GPIO_PIN_15
+};
 
 /*******************/
 /* GLOBAL VARIABLE */
@@ -154,12 +189,13 @@ __ramfunc __STATIC_INLINE
 #endif
 void GPIO_EVEN_EventHandler(void)
 {
-    /* Clear XXX interrupt */
-    
+    /* Clear PA0 interrupt */
+    GPIO->IFC &= ~(GPIO_MASK_PIN(GPIO_PIN_0));
+
     /* Clear pending IRQ */
     NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(GPIO_EVEN_IRQn & 0x1F));
 
-    /* Event handling */
+    /* Event handling when PA0 is low - button pushed*/
 
 }
 
@@ -170,12 +206,13 @@ __ramfunc __STATIC_INLINE
 #endif
 void GPIO_ODD_EventHandler(void)
 {
-    /* Clear XXX interrupt */
-    
+    /* Clear PA1 interrupt */
+    GPIO->IFC &= ~(GPIO_MASK_PIN(GPIO_PIN_1));
+
     /* Clear pending IRQ */
     NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(GPIO_ODD_IRQn & 0x1F));
 
-    /* Event handling */
+    /* Event handling when PA1 is low - button pushed*/
     
 }
 
@@ -422,15 +459,41 @@ static void initLEUART(void)
 /******************************************************************************
  Base configuration of GPIO pins according to board design.
  NOTE:
-    - Pin PA0 as input with pull-down resistor
-    - Pin PA1 as input with pull-down resistor
-    - Pin PB8 as output with pull
+   Inputs:
+    - Pin PA0 as input with pull-up resistor
+    - Pin PA1 as input with pull-up resistor
+    - Pin RSTn for HW reset - no configuration
+   Outputs:
+    - Pin PB8 as output with pull-up resistor, open drain
+
+    GPIO_PA_DIN - read input state
+    GPIO_PA_DOUT - send value to pin (L/H)
+
  TODO:
     - configuration may be changed during HW prototyping
 ******************************************************************************/
 static void initGPIO(void)
 {
-    GPIO
+    /* PA0 and PA1*/
+    GPIO->P[GPIO_PORT_A].MODEL |= GPIO_P_MODEL_MODE0_INPUT |
+                                  GPIO_P_MODEL_MODE1_INPUT;
+
+    /* PB8 */
+    GPIO->P[GPIO_PORT_B].CTRL |= GPIO_P_CTRL_DRIVEMODE_LOW;
+    GPIO->P[GPIO_PORT_B].MODEH |= GPIO_P_MODEH_MODE8_PUSHPULL;
+
+
+    /* PA0 and PA1 interrupt configuration */
+    GPIO->EXTIPSELL |= GPIO_EXTIPSELL_EXTIPSEL0_PORTA |
+                       GPIO_EXTIPSELL_EXTIPSEL1_PORTB;
+
+    /* Trigger interrupt on falling edge for PA0 and PA1 */
+    GPIO->EXTIFALL |= (GPIO_MASK_PIN(GPIO_PIN_0)) |
+                      (GPIO_MASK_PIN(GPIO_PIN_1));
+
+    /* Enable Interrupt for PA0 and PA1*/
+    GPIO->IEN |= (GPIO_MASK_PIN(GPIO_PIN_0)) |
+                 (GPIO_MASK_PIN(GPIO_PIN_1)); 
 }
 
 
@@ -513,6 +576,11 @@ int main(void)
     /* Configure deep sleep mode with event handling */
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk |
                 SCB_SCR_SLEEPDEEP_Msk;
+
+
+    /* Enter debug mode If PA0 port is low during strtup */
+    if (!(GPIO->P[GPIO_PORT_A].DIN & (GPIO_MASK_PIN(GPIO_PIN_0))))
+        while(1);
 
     while(1)
     {
