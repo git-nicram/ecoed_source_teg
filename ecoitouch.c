@@ -15,7 +15,7 @@
  * * *
  * 0.0.7  xx.xx.2013    nicraM    
  * 0.0.6  xx.xx.2013    nicraM    LEUART configuration and functionality
- * 0.0.5  xx.xx.2013    nicraM    RTC configuration - SysTick is not available
+ * 0.0.5  29.01.2013    nicraM    RTC configuration - SysTick is not available
                                   in deep sleep So will be commented - later
                                   removed.
  * 0.0.4  28.01.2013    nicraM    GPIO configuration and handling 
@@ -57,7 +57,7 @@
 #define THRESHOLD_VOLTAGE(x)    (uint32_t)((x * VOLTAGE_MAGIC_1_CONST) \
 	                                          - VOLTAGE_MAGIC_2_CONST)
 
-#define GPIO_MASK_PIN(x)        (1 << x)   
+#define GPIO_MASK_PIN(x)        (1 << x) 
 
 
 /************************/
@@ -116,13 +116,19 @@ __IO uint32_t g_minutes = 0;
 
 static void RTC_EventHandler(void)
 {
-    /* Clear XXX interrupt */
-    
+    /* Clear RTC interrupt */
+    RTC->IFC &= ~RTC_IFC_OF;
+
     /* Clear pending IRQ */
     NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(RTC_IRQn & 0x1F));
 	
-    /* Event handling */
+    /* Count minutes */
+    ++g_minutes;
 
+    if (g_minutes >= MINUTE_HOUR)
+        g_minutes = 0;
+
+    /* other usage */
 }
 
 
@@ -195,7 +201,7 @@ void GPIO_EVEN_EventHandler(void)
     /* Clear pending IRQ */
     NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(GPIO_EVEN_IRQn & 0x1F));
 
-    /* Event handling when PA0 is low - button pushed*/
+    /* Event handling when PA0 is low - button pushed */
 
 }
 
@@ -212,7 +218,7 @@ void GPIO_ODD_EventHandler(void)
     /* Clear pending IRQ */
     NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(GPIO_ODD_IRQn & 0x1F));
 
-    /* Event handling when PA1 is low - button pushed*/
+    /* Event handling when PA1 is low - button pushed */
     
 }
 
@@ -348,15 +354,16 @@ static void initCMU(void)
     CMU->HFCORECLKDIV |= CMU_HFCORECLKDIV_HFCORECLKDIV_HFCLK;
     */
 
-    /* DMA clock */
-    CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_DMA;
-
-    /* LE clock */
-    CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_LE;
+    /* DMA and LE clocks */
+    CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_DMA |
+                         CMU_HFCORECLKEN0_LE;
 
     /* LFA and LFB clocks */
     CMU->LFCLKSEL |= CMU_LFCLKSEL_LFA_LFRCO |
                      CMU_LFCLKSEL_LFB_LFRCO;
+
+    /* Set RTC prescaler to 15 - 1s resolution */
+    CMU->LFAPRESC0 |= CMU_LFAPRESC0_RTC_DIV32768;
 
     /* LE peripherals clocks */
     CMU->LFACLKEN0 |= CMU_LFACLKEN0_RTC |
@@ -398,13 +405,19 @@ static void initSysTick(void)
 
 
 /******************************************************************************
-TODO:
+ Basic configuration and initialization for Real time clock. 
 ******************************************************************************/
 static void initRTC(void)
 {
-    /* interrupt section */
-    
-    /* general configuration */
+    /* Set compare channel value (COMP0) to 60s - overflow */
+    RTC->COMP0 |= MINUTE_HOUR; 
+
+    /* Configure COMP0 interrupt */ 
+    RTC->IEN |= RTC_IEN_OF;
+
+    /* Configure counter value to be used from COMP0 and start RTC */
+    RTC->CTRL |= RTC_CTRL_COMP0TOP_ENABLE |
+                 RTC_CTRL_EN;
 }
 
 
@@ -474,13 +487,17 @@ static void initLEUART(void)
 ******************************************************************************/
 static void initGPIO(void)
 {
-    /* PA0 and PA1*/
+    /* PA0 and PA1 - inputs for buttons */
     GPIO->P[GPIO_PORT_A].MODEL |= GPIO_P_MODEL_MODE0_INPUT |
                                   GPIO_P_MODEL_MODE1_INPUT;
 
-    /* PB8 */
+    /* PB8 - output for LED */
     GPIO->P[GPIO_PORT_B].CTRL |= GPIO_P_CTRL_DRIVEMODE_LOW;
     GPIO->P[GPIO_PORT_B].MODEH |= GPIO_P_MODEH_MODE8_PUSHPULL;
+
+    /* PB13 and PB14 - output for LEUART0 */
+    GPIO->P[GPIO_PORT_B].MODEH |= GPIO_P_MODEH_MODE13_PUSHPULL |
+                                  GPIO_P_MODEH_MODE14_PUSHPULL;
 
 
     /* PA0 and PA1 interrupt configuration */
@@ -538,6 +555,10 @@ static void initNVIC(void)
                                   (1 << (uint32_t)(GPIO_EVEN_IRQn & 0x1F)); 
 }
 
+
+
+
+
 /*****************/
 /* MAIN FUNCTION */
 /*****************/
@@ -551,9 +572,8 @@ int main(void)
     /* Clock management unit initialization and configuration */
     initCMU();
 
-    /* Real time clock initialization and configuration
-    initRTC(); I will try with SysTick on the beggining
-    */
+    /* Real time clock initialization and configuration */
+    initRTC();
 
     /* Voltage comparator initialization and configuration */
     initVCMP();
@@ -567,8 +587,9 @@ int main(void)
     /* Nested vector interrupt controller initialization and configuration */
     /* initNVIC(); disabled at the moment */
 
-    /* SysTick clock initialization and configuraion */
-    initSysTick();
+    /* SysTick clock initialization and configuraion 
+     initSysTick(); SysTick doesn't work in deep sleep ;/
+     */
 
     /* Clear reset causes */
     clearResetCauses();
@@ -577,10 +598,13 @@ int main(void)
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk |
                 SCB_SCR_SLEEPDEEP_Msk;
 
-
     /* Enter debug mode If PA0 port is low during strtup */
     if (!(GPIO->P[GPIO_PORT_A].DIN & (GPIO_MASK_PIN(GPIO_PIN_0))))
         while(1);
+
+
+
+
 
     while(1)
     {
