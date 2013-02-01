@@ -2,19 +2,8 @@
  *
  * 1.0.0  xx.xx.2013    nicraM    Official release. Rev A
  * * *
- * 0.6.0  xx.xx.2013    nicraM    Fixes and changes for LEUART
- * 0.5.0  xx.xx.2013    nicraM    Fixes and changes for RTC
- * 0.4.0  xx.xx.2013    nicraM    Fixes and changes for GPIO
- * 0.3.0  xx.xx.2013    nicraM    Fixes and changes for SysTick and VCMP
- *                                - SysTick removed since not available in
- *                                deep sleep. 
- * 0.2.0  xx.xx.2013    nicraM    Fixes and changes for sleep modes, event and
- *                                interrupt handlings
- * 0.1.0  xx.xx.2013    nicraM    Fixes and changes for clock and reset 
- *                                detection
- * * *
- * 0.0.7  xx.xx.2013    nicraM    
- * 0.0.6  xx.xx.2013    nicraM    LEUART configuration and functionality
+ * 0.1.0  xx.xx.2013    nicraM
+ * 0.0.6  01.02.2013    nicraM    Clean up - HW design & PCB prototyping
  * 0.0.5  29.01.2013    nicraM    RTC configuration - SysTick is not available
                                   in deep sleep So will be commented - later
                                   removed.
@@ -113,7 +102,9 @@ __IO uint32_t g_minutes = 0;
 /******************/
 /* EVENT HANDLERS */
 /******************/
-
+#ifdef __ICCARM__
+__ramfunc __STATIC_INLINE
+#endif
 static void RTC_EventHandler(void)
 {
     /* Clear RTC interrupt */
@@ -130,7 +121,6 @@ static void RTC_EventHandler(void)
 
     /* other usage */
 }
-
 
 
 #ifdef __ICCARM__
@@ -224,37 +214,6 @@ void GPIO_ODD_EventHandler(void)
 
 
 
-#ifdef __ICCARM__
-__ramfunc __STATIC_INLINE
-#endif
-void LEUART0_EventHandler(void)
-{
-    /* Clear XXX interrupt */
-    
-    /* Clear pending IRQ */
-    NVIC->ICPR[(uint32_t)PAGE0] |= (0 << (uint32_t)(LEUART0_IRQn & 0x1F));
-    
-    /* Event handling */
-
-}
-
-
-
-/******************************************************************************
-Function that disables enabled by default clock (HFRCO) and enables LFRCO
-******************************************************************************/
-#ifdef __ICCARM__
-__ramfunc __STATIC_INLINE
-#endif
-void enableLFRCO(void)
-{
-    CMU->OSCENCMD |= CMU_OSCENCMD_LFRCOEN;
-    while(!(CMU->STATUS & _CMU_STATUS_LFRCORDY_MASK));
-    CMU->CMD |= CMU_CMD_HFCLKSEL_LFRCO;
-    CMU->OSCENCMD |= CMU_OSCENCMD_HFRCODIS;
-}
-
-
 
 /***********************/
 /* INTERRUPT FUNCTIONS */ 
@@ -324,17 +283,25 @@ void GPIO_ODD_IRQHandler(void)
     
 }
 
-void LEUART0_IRQHandler(void)
-{
-    /* Clear XXX interrupt */
-    
-    /* Event handling */
-    
-}
 
 /*******************/
 /* LOCAL FUNCTIONS */
 /*******************/
+
+/******************************************************************************
+Function that disables enabled by default clock (HFRCO) and enables LFRCO
+******************************************************************************/
+#ifdef __ICCARM__
+__ramfunc __STATIC_INLINE
+#endif
+void enableLFRCO(void)
+{
+    CMU->OSCENCMD |= CMU_OSCENCMD_LFRCOEN;
+    while(!(CMU->STATUS & _CMU_STATUS_LFRCORDY_MASK));
+    CMU->CMD |= CMU_CMD_HFCLKSEL_LFRCO;
+    CMU->OSCENCMD |= CMU_OSCENCMD_HFRCODIS;
+}
+
 
 /******************************************************************************
  After reset uC is running on HFRCO(14MHz) - 2us startup time 
@@ -460,16 +427,6 @@ static void initVCMP(void)
 
 
 /******************************************************************************
-TODO:
-******************************************************************************/
-static void initLEUART(void)
-{
-    /* interrupt section */
-    
-    /* general configuration */
-}
-
-/******************************************************************************
  Base configuration of GPIO pins according to board design.
  NOTE:
    Inputs:
@@ -556,9 +513,6 @@ static void initNVIC(void)
 }
 
 
-
-
-
 /*****************/
 /* MAIN FUNCTION */
 /*****************/
@@ -577,9 +531,6 @@ int main(void)
 
     /* Voltage comparator initialization and configuration */
     initVCMP();
-
-    /* Low energy UART initialization and configuration */
-    initLEUART();
 
     /* General purpose IO initialization and configuration */
     initGPIO();
@@ -602,10 +553,6 @@ int main(void)
     if (!(GPIO->P[GPIO_PORT_A].DIN & (GPIO_MASK_PIN(GPIO_PIN_0))))
         while(1);
 
-
-
-
-
     while(1)
     {
         /* Wait for event - no NVIC used */
@@ -622,9 +569,6 @@ int main(void)
 
         if (NVIC->ISPR[(uint32_t)PAGE1] & (uint32_t)(VCMP_IRQn & 0x1F))
             VCMP_EventHandler();
-
-        if (NVIC->ISPR[(uint32_t)PAGE0] & (uint32_t)(LEUART0_IRQn & 0x1F))
-            LEUART0_EventHandler();
 
         if (NVIC->ISPR[(uint32_t)PAGE0] & (uint32_t)(GPIO_ODD_IRQn & 0x1F))
             GPIO_ODD_EventHandler();
